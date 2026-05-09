@@ -1,0 +1,46 @@
+name: Naukri Auto Update
+
+on:
+  schedule:
+    # Timings in IST: 9:00, 10:00, 11:00, 12:00, 15:00, 17:00, 19:00
+    # GitHub uses UTC (IST - 5.5 hours)
+    - cron: '30 3,4,5,6,9,11,13 * * *'
+  workflow_dispatch: # Isse aap manually bhi run kar sakte hain
+
+jobs:
+  update-profile:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Google Chrome
+        uses: browser-actions/setup-chrome@v1
+
+      - name: Install Dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run Automation
+        env:
+          NAUKRI_EMAIL: ${{ secrets.NAUKRI_EMAIL }}
+          NAUKRI_PASSWORD: ${{ secrets.NAUKRI_PASSWORD }}
+          NAUKRI_COOKIES: ${{ secrets.NAUKRI_COOKIES }}
+        run: |
+          python main.py
+
+      # Optional: Error hone par screenshot save karne ke liye
+      - name: Upload Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-screenshots
+          path: |
+            *.png
+            *.html

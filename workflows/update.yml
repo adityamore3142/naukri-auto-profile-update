@@ -1,0 +1,40 @@
+# .github/workflows/update.yml
+
+name: Naukri Auto Update
+
+on:
+  workflow_dispatch:
+
+  schedule:
+    - cron: '30 4 * * *'
+
+jobs:
+  update-profile:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Chrome
+        uses: browser-actions/setup-chrome@v1
+
+      - name: Install Dependencies
+        run: |
+          pip install selenium webdriver-manager
+
+      - name: Run Python Script
+        env:
+          NAUKRI_EMAIL: ${{ secrets.NAUKRI_EMAIL }}
+          NAUKRI_PASSWORD: ${{ secrets.NAUKRI_PASSWORD }}
+          NAUKRI_COOKIES: ${{ secrets.NAUKRI_COOKIES }}
+
+        run: |
+          python main.py
